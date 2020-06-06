@@ -1,0 +1,28 @@
+builds:
+- id: kubectl-podevents
+  env:
+  - CGO_ENABLED=0
+  main: ./cmd/kubectl-podevents/main.go
+  binary: kubectl-podevents
+  goos:
+  - darwin
+  - linux
+  - windows
+  goarch:
+  - amd64
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+archives:
+- builds:
+  - kubectl-podevents
+  name_template: "{{ .ProjectName }}_{{ .Tag }}_{{ .Os }}_{{ .Arch }}"
+  files:
+  - LICENSE
