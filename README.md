@@ -5,13 +5,11 @@
 
 The idea for this plugins has been shamelessly stolen from [Melanie Cebula's QCOn London Talk](https://www.infoq.com/presentations/airbnb-kubernetes-services/) and enhanced to be _slightly_ less opinionated.
 
-The plugin plugin displays all pod events for pods in your currently configured namespace.
+This plugin displays all pod events for pods in your currently configured namespace.
 
-The plugin also supports standard Pod selection arguments as well as one (or multiple pod names) to explicitly grab events for.
+This plugin also supports standard Pod selection arguments as well as one (or multiple pod names) to explicitly grab events for.
 
 ## Installation
-
-Installation steps will install both `kubectl-podevents` and `kubectl-podevents`
 
 ### Using [krew](https://github.com/kubernetes-sigs/krew/)
 ```
@@ -33,6 +31,8 @@ Download Windows binaries from [releases](https://github.com/alecjacobs5401/kube
 ```
 kubectl krew upgrade podevents
 ```
+
+### Manually
 See installation.
 
 ## Usage
@@ -81,7 +81,7 @@ LAST SEEN			TYPE	REASON			MESSAGE
 ```
 
 
-### Diagnosing based on Pod Names
+### With provided pod names
 ```
 kubectl podevents pod-abc-123 pod-def-456
 ```
