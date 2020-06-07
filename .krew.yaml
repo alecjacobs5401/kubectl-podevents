@@ -1,0 +1,31 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  name: podevents
+spec:
+  version: {{ .TagName }}
+  homepage: https://github.com/alecjacobs5401/kubectl-podevents
+  shortDescription: Show events for pods
+  description: |
+    This plugin shows events for all pods in the current namespace.
+    In addition, you can filter which pods to show events for as well as
+    filter which events you want to show.
+  platforms:
+  - selector:
+      matchLabels:
+        os: darwin
+        arch: amd64
+    {{addURIAndSha "https://github.com/alecjacobs5401/kubectl-podevents/releases/download/{{ .TagName }}/kubectl-podevents_{{ .TagName }}_darwin_amd64.tar.gz" .TagName }}
+    bin: kubectl-podevents
+  - selector:
+      matchLabels:
+        os: linux
+        arch: amd64
+    {{addURIAndSha "https://github.com/alecjacobs5401/kubectl-podevents/releases/download/{{ .TagName }}/kubectl-podevents_{{ .TagName }}_linux_amd64.tar.gz" .TagName }}
+    bin: kubectl-podevents
+  - selector:
+      matchLabels:
+        os: windows
+        arch: amd64
+    {{addURIAndSha "https://github.com/alecjacobs5401/kubectl-podevents/releases/download/{{ .TagName }}/kubectl-podevents_{{ .TagName }}_windows_amd64.tar.gz" .TagName }}
+    bin: kubectl-podevents.exe
