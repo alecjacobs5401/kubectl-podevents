@@ -47,14 +47,20 @@ Flags:
       --version                Show application version.
   -l, --selector=SELECTOR      Pod Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)
       --field-selector=FIELD-SELECTOR
-                               Pod Selector (field query) to filter on, supports '=', '==', and '!='.(e.g. --field-selector key1=value1,key2=value2). The server only supports a limited number of field queries per type.
+                               Pod Selector (field query) to filter on, supports '=', '==', and '!='.(e.g. --field-selector
+                               key1=value1,key2=value2). The server only supports a limited number of field queries per type.
       --event-selector=EVENT-SELECTOR
                                Pod Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)
       --event-field-selector=EVENT-FIELD-SELECTOR
-                               Event Selector (field query) to filter on, supports '=', '==', and '!='.(e.g. --field-selector key1=value1,key2=value2). The server only supports a limited number of field queries per type.
-      --kubeconfig=KUBECONFIG  The path to a pre-existing kubeconfig file that you want to have the new cluster authorization merged into. If not provided, the KUBECONFIG environment variable will be checked for a file. If that is empty, $HOME/.kube/config will be used.
+                               Event Selector (field query) to filter on, supports '=', '==', and '!='.(e.g. --field-selector
+                               key1=value1,key2=value2). The server only supports a limited number of field queries per type.
+      --kubeconfig=KUBECONFIG  The path to a pre-existing kubeconfig file that you want to have the new cluster authorization merged
+                               into. If not provided, the KUBECONFIG environment variable will be checked for a file. If that is empty,
+                               $HOME/.kube/config will be used.
   -n, --namespace=NAMESPACE    The Kubernetes namespace to use. Default to the current namespace in your kube config file.
       --context=CONTEXT        The Kubernetes context to use. Defaults to the current context in your kube config file.
+  -A, --all-namespaces         If present, list the requested object(s) across all namespaces. Namespace in current context is ignored
+                               even if specified with --namespace
 
 Args:
   [<pod>]  A pod name to target (Accepts multiple pod names)
@@ -64,13 +70,14 @@ Args:
 ### Without Arguments / Flags
 ```
 $ kubectl podevents
-Events for bad-pod-764ccf854d-kbsq2:
-LAST SEEN			TYPE	REASON		    	MESSAGE
-2020-05-29 14:15:32 -0700 PDT	Warning	DNSConfigForming	Search Line limits were exceeded, some search paths have been omitted, the applied search line is: ajacobs-playground.svc.cluster.local svc.cluster.local cluster.local ec2.internal us-east-1.invocadev.com invocadev.com
+Events for 'bad-pod-764ccf854d-kbsq2':
+LAST SEEN			TYPE	REASON			MESSAGE
+2020-06-06 17:20:33 -0700 PDT	Warning	DNSConfigForming	Search Line limits were exceeded, some search paths have been omitted, the applied search line is: some-namespace.svc.cluster.local svc.cluster.local cluster.local ec2.internal cluster-dns dns
+2020-06-06 17:25:27 -0700 PDT	Warning	BackOff			Back-off restarting failed container
 
-Events for redis-59b66855fc-94sn9:
-LAST SEEN			TYPE	REASON		    	MESSAGE
-2020-05-29 14:17:33 -0700 PDT	Warning	DNSConfigForming	Search Line limits were exceeded, some search paths have been omitted, the applied search line is: ajacobs-playground.svc.cluster.local svc.cluster.local cluster.local ec2.internal us-east-1.invocadev.com invocadev.com
+Events for 'redis-59b66855fc-94sn9':
+LAST SEEN			TYPE	REASON			MESSAGE
+2020-06-06 17:28:15 -0700 PDT	Warning	DNSConfigForming	Search Line limits were exceeded, some search paths have been omitted, the applied search line is: some-namespace.svc.cluster.local svc.cluster.local cluster.local ec2.internal cluster-dns dns
 ```
 
 
@@ -82,5 +89,24 @@ kubectl podevents pod-abc-123 pod-def-456
 ### With event-field-selector
 ```
 # filters out events with a reason of DNSConfigForming
-kubectl podevents --event-field-selector reason!=DNSConfigForming
+$ kubectl podevents --event-field-selector reason!=DNSConfigForming
+Events for 'bad-pod-764ccf854d-kbsq2':
+LAST SEEN			TYPE	REASON			MESSAGE
+2020-06-06 17:25:27 -0700 PDT	Warning	BackOff			Back-off restarting failed container
+
+Events for 'redis-59b66855fc-94sn9':
+LAST SEEN			TYPE	REASON			MESSAGE
+```
+
+### With -A/--all-namespaces provided
+```
+$ kubectl podevents -A
+Events for 'some-namespace/bad-pod-764ccf854d-kbsq2':
+LAST SEEN			TYPE	REASON			MESSAGE
+2020-06-06 17:20:33 -0700 PDT	Warning	DNSConfigForming	Search Line limits were exceeded, some search paths have been omitted, the applied search line is: some-namespace.svc.cluster.local svc.cluster.local cluster.local ec2.internal cluster-dns dns
+2020-06-06 17:25:27 -0700 PDT	Warning	BackOff			Back-off restarting failed container
+
+Events for 'other-namespace/memcached-5fd5cfbf78-n2zf8':
+LAST SEEN			TYPE	REASON			MESSAGE
+2020-06-06 17:28:15 -0700 PDT	Warning	DNSConfigForming	Search Line limits were exceeded, some search paths have been omitted, the applied search line is: other-namespace.svc.cluster.local svc.cluster.local cluster.local ec2.internal cluster-dns dns
 ```

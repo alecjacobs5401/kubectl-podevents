@@ -41,6 +41,8 @@ func main() {
 		Short('n').StringVar(&clientConfig.Namespace)
 	app.Flag("context", "The Kubernetes context to use. Defaults to the current context in your kube config file.").
 		StringVar(&clientConfig.Context)
+	app.Flag("all-namespaces", "If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace").
+		Short('A').BoolVar(&clientConfig.AllNamespaces)
 
 	_, err := app.Parse(args)
 	if err != nil {
@@ -64,14 +66,25 @@ func podevents(podSelectors types.PodSelectors, eventSelectors types.EventSelect
 		return errors.Wrap(err, "building client")
 	}
 
-	podNames := podSelectors.Names
-	if len(podNames) == 0 {
+	podNames := []string{}
+	if clientConfig.AllNamespaces {
 		pods, err := client.Pods(podSelectors)
 		if err != nil {
 			return errors.Wrap(err, "getting pods")
 		}
 		for _, pod := range pods {
-			podNames = append(podNames, pod.Name)
+			podNames = append(podNames, fmt.Sprintf("%s/%s", pod.Namespace, pod.Name))
+		}
+	} else {
+		podNames = podSelectors.Names
+		if len(podNames) == 0 {
+			pods, err := client.Pods(podSelectors)
+			if err != nil {
+				return errors.Wrap(err, "getting pods")
+			}
+			for _, pod := range pods {
+				podNames = append(podNames, pod.Name)
+			}
 		}
 	}
 
@@ -97,7 +110,7 @@ func podevents(podSelectors types.PodSelectors, eventSelectors types.EventSelect
 			return errors.Wrapf(err, "getting events for pod '%s'", pod)
 		}
 
-		fmt.Printf("Events for %s:\n", pod)
+		fmt.Printf("Events for '%s':\n", pod)
 		for _, event := range events {
 			fmt.Fprintf(w, format, event.LastTimestamp, event.Type, event.Reason, event.Message)
 		}
